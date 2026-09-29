@@ -1,13 +1,28 @@
 import axios from 'axios';
 
-// Configurable backend API base URL for production deployment
-// When deployed on Render (e.g. VITE_API_BASE_URL=https://quickbite-api.onrender.com),
-// it automatically formats to https://quickbite-api.onrender.com/api
-// For local development with Vite proxy, defaults to '/api'
-const rawBaseURL = import.meta.env.VITE_API_BASE_URL || '/api';
-const baseURL = rawBaseURL.endsWith('/api')
-  ? rawBaseURL
-  : `${rawBaseURL.replace(/\/+$/, '')}/api`;
+// Resolve backend API URL for production and local environments
+// 1. Explicit VITE_API_BASE_URL if configured during build or runtime
+// 2. Production Render deployment (either running on *.onrender.com or production build)
+//    defaults to https://quickbite-backend-yjyi.onrender.com/api
+// 3. Local development proxy fallback to '/api'
+const resolveBaseURL = () => {
+  const envUrl = import.meta.env.VITE_API_BASE_URL;
+  if (envUrl && envUrl.trim() !== '') {
+    const trimmed = envUrl.trim();
+    return trimmed.endsWith('/api') ? trimmed : `${trimmed.replace(/\/+$/, '')}/api`;
+  }
+
+  if (
+    (typeof window !== 'undefined' && window.location.hostname.includes('onrender.com')) ||
+    import.meta.env.PROD
+  ) {
+    return 'https://quickbite-backend-yjyi.onrender.com/api';
+  }
+
+  return '/api';
+};
+
+const baseURL = resolveBaseURL();
 
 const api = axios.create({
   baseURL,

@@ -123,8 +123,43 @@ export const HomePage = ({ setTab }) => {
     );
   }
 
-  const selectedItem = selectedMeal === 'veg' ? menu?.veg : menu?.nonVeg;
-  const totalPrice = selectedItem ? selectedItem.price * quantity : 0;
+  const defaultVeg = {
+    name: 'SRM Special: Ghee Podi Masala Dosa Platter',
+    description: 'Crispy golden crepe roasted in pure ghee with spiced potato masala, served with fresh coconut chutney, tomato dip, and steaming sambar.',
+    price: 65,
+    imageUrl: 'https://images.unsplash.com/photo-1668236543090-82eba5ee5976?auto=format&fit=crop&w=600&q=80',
+    tags: ['SRM Special', 'Pure Veg', 'Freshly Made'],
+  };
+
+  const defaultNonVeg = {
+    name: 'SRM Cafeteria Signature: Chicken Keema Paratha & Egg',
+    description: 'Whole wheat flaky paratha stuffed with flavorful minced chicken keema, served with spiced boondi raita, pickle, and a fluffy boiled egg.',
+    price: 85,
+    imageUrl: 'https://images.unsplash.com/photo-1626777552726-4a6b54c97e46?auto=format&fit=crop&w=600&q=80',
+    tags: ['High Protein', 'Student Favorite', 'Chef Special'],
+  };
+
+  const vegItem = {
+    ...defaultVeg,
+    ...(menu?.veg || {}),
+    imageUrl: menu?.veg?.imageUrl || defaultVeg.imageUrl,
+    price: Number(menu?.veg?.price) > 0 ? Number(menu.veg.price) : 65,
+    name: menu?.veg?.name || defaultVeg.name,
+    description: menu?.veg?.description || defaultVeg.description,
+  };
+
+  const nonVegItem = {
+    ...defaultNonVeg,
+    ...(menu?.nonVeg || {}),
+    imageUrl: menu?.nonVeg?.imageUrl || defaultNonVeg.imageUrl,
+    price: Number(menu?.nonVeg?.price) > 0 ? Number(menu.nonVeg.price) : 85,
+    name: menu?.nonVeg?.name || defaultNonVeg.name,
+    description: menu?.nonVeg?.description || defaultNonVeg.description,
+  };
+
+  const selectedItem = selectedMeal === 'veg' ? vegItem : nonVegItem;
+  const unitPrice = selectedItem.price;
+  const totalPrice = unitPrice * quantity;
 
   return (
     <div className="max-w-5xl mx-auto px-4 py-6 pb-24 md:pb-12 space-y-6">
@@ -237,8 +272,12 @@ export const HomePage = ({ setTab }) => {
               {/* Image Preview */}
               <div className="h-44 w-full rounded-2xl overflow-hidden mb-4 bg-slate-100 dark:bg-slate-800 relative">
                 <img
-                  src={menu?.veg?.imageUrl}
-                  alt={menu?.veg?.name}
+                  src={vegItem.imageUrl}
+                  alt={vegItem.name}
+                  onError={(e) => {
+                    e.target.onerror = null;
+                    e.target.src = defaultVeg.imageUrl;
+                  }}
                   className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                 />
                 <div className="absolute bottom-2 left-2">
@@ -250,15 +289,15 @@ export const HomePage = ({ setTab }) => {
 
               {/* Title & Description */}
               <h3 className="text-lg font-bold text-slate-900 dark:text-white group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors">
-                {menu?.veg?.name}
+                {vegItem.name}
               </h3>
               <p className="text-xs text-slate-600 dark:text-slate-400 mt-1.5 leading-relaxed line-clamp-3">
-                {menu?.veg?.description}
+                {vegItem.description}
               </p>
 
               {/* Tags */}
               <div className="flex flex-wrap gap-1.5 mt-3">
-                {menu?.veg?.tags?.map((tag, i) => (
+                {(vegItem.tags || defaultVeg.tags).map((tag, i) => (
                   <span
                     key={i}
                     className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-emerald-50 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800"
@@ -276,7 +315,7 @@ export const HomePage = ({ setTab }) => {
                   Pre-booking Price
                 </span>
                 <span className="text-2xl font-black text-slate-900 dark:text-white">
-                  ₹{menu?.veg?.price || 65}
+                  ₹{vegItem.price}
                 </span>
               </div>
               <button
@@ -312,8 +351,12 @@ export const HomePage = ({ setTab }) => {
               {/* Image Preview */}
               <div className="h-44 w-full rounded-2xl overflow-hidden mb-4 bg-slate-100 dark:bg-slate-800 relative">
                 <img
-                  src={menu?.nonVeg?.imageUrl}
-                  alt={menu?.nonVeg?.name}
+                  src={nonVegItem.imageUrl}
+                  alt={nonVegItem.name}
+                  onError={(e) => {
+                    e.target.onerror = null;
+                    e.target.src = defaultNonVeg.imageUrl;
+                  }}
                   className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                 />
                 <div className="absolute bottom-2 left-2">
@@ -325,15 +368,15 @@ export const HomePage = ({ setTab }) => {
 
               {/* Title & Description */}
               <h3 className="text-lg font-bold text-slate-900 dark:text-white group-hover:text-red-600 dark:group-hover:text-red-400 transition-colors">
-                {menu?.nonVeg?.name}
+                {nonVegItem.name}
               </h3>
               <p className="text-xs text-slate-600 dark:text-slate-400 mt-1.5 leading-relaxed line-clamp-3">
-                {menu?.nonVeg?.description}
+                {nonVegItem.description}
               </p>
 
               {/* Tags */}
               <div className="flex flex-wrap gap-1.5 mt-3">
-                {menu?.nonVeg?.tags?.map((tag, i) => (
+                {(nonVegItem.tags || defaultNonVeg.tags).map((tag, i) => (
                   <span
                     key={i}
                     className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-red-50 dark:bg-red-950/60 text-red-800 dark:text-red-300 border border-red-200 dark:border-red-800"
@@ -351,7 +394,7 @@ export const HomePage = ({ setTab }) => {
                   Pre-booking Price
                 </span>
                 <span className="text-2xl font-black text-slate-900 dark:text-white">
-                  ₹{menu?.nonVeg?.price || 85}
+                  ₹{nonVegItem.price}
                 </span>
               </div>
               <button
@@ -462,7 +505,7 @@ export const HomePage = ({ setTab }) => {
                 ₹{totalPrice}
               </span>
               <span className="text-xs text-slate-400 dark:text-slate-500 font-medium">
-                ({quantity}x ₹{selectedItem?.price})
+                ({quantity}x ₹{unitPrice})
               </span>
             </div>
           </div>

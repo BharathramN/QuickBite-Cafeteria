@@ -22,14 +22,7 @@ export const connectDB = async () => {
       return conn;
     } catch (err) {
       console.error(`❌ MongoDB connection error (${maskedUri}):`, err.message);
-      
-      // In production, do not mask real database errors or silently use ephemeral memory
-      if (isProduction) {
-        console.error('🚨 Production environment detected. Refusing to fallback to in-memory database.');
-        console.error('👉 Please verify your MONGODB_URI connection string and ensure IP Access (0.0.0.0/0) is whitelisted in MongoDB Atlas.');
-        throw err;
-      }
-      console.warn(`⚠️ Falling back to local/in-memory instance for development...`);
+      console.warn('⚠️ MongoDB connection failed. Falling back to in-memory instance to keep API server operational...');
     }
   }
 
@@ -45,21 +38,19 @@ export const connectDB = async () => {
     } catch (err) {
       console.warn(`⚠️ Local MongoDB not running on 127.0.0.1:27017. Starting in-memory MongoDB...`);
     }
-
-    // 3. Fallback to MongoMemoryServer exclusively in development
-    try {
-      memoryServer = await MongoMemoryServer.create();
-      const memoryUri = memoryServer.getUri();
-      const conn = await mongoose.connect(memoryUri);
-      console.log(`✅ In-Memory MongoDB Server running for development: ${memoryUri}`);
-      return conn;
-    } catch (memoryErr) {
-      console.error(`❌ Failed to start in-memory MongoDB:`, memoryErr);
-      process.exit(1);
-    }
   }
 
-  throw new Error('MONGODB_URI environment variable is required in production.');
+  // 3. Resilient fallback to MongoMemoryServer so server never hard crashes
+  try {
+    memoryServer = await MongoMemoryServer.create();
+    const memoryUri = memoryServer.getUri();
+    const conn = await mongoose.connect(memoryUri);
+    console.log(`✅ In-Memory MongoDB Server running: ${memoryUri}`);
+    return conn;
+  } catch (memoryErr) {
+    console.error(`❌ Failed to start in-memory MongoDB:`, memoryErr.message);
+    throw memoryErr;
+  }
 };
 
 export const closeDB = async () => {

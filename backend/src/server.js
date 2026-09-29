@@ -18,26 +18,35 @@ const HOST = process.env.HOST || '0.0.0.0';
 const isProduction = process.env.NODE_ENV === 'production';
 
 // Dynamic CORS configuration supporting deployed frontend URL(s)
-const allowedOrigins = [
+const defaultOrigins = [
   'http://localhost:5173',
   'http://localhost:3000',
   'http://127.0.0.1:5173',
   'http://127.0.0.1:3000',
-  'https://quickbite-frontend-nk9v.onrender.com'
+  'https://quickbite-frontend-nk9v.onrender.com',
 ];
+
+const envOrigins = process.env.CLIENT_URL
+  ? process.env.CLIENT_URL.split(',').map((u) => u.trim().replace(/\/$/, ''))
+  : [];
+
+const allowedOrigins = [...new Set([...defaultOrigins, ...envOrigins])];
 app.use(
   cors({
     origin: (origin, callback) => {
       // Allow requests with no origin (such as mobile apps, curl, uptime pingers)
       if (!origin) return callback(null, true);
 
-      // If wild card or in development without CLIENT_URL, allow
-      if (!process.env.CLIENT_URL || allowedOrigins.includes('*')) {
-        return callback(null, true);
-      }
-
       const normalizedOrigin = origin.replace(/\/$/, '');
-      if (allowedOrigins.includes(normalizedOrigin)) {
+
+      // Allow wildcard, allowedOrigins, any Render frontend (*.onrender.com), or localhost
+      if (
+        allowedOrigins.includes('*') ||
+        allowedOrigins.includes(normalizedOrigin) ||
+        normalizedOrigin.endsWith('.onrender.com') ||
+        normalizedOrigin.includes('localhost') ||
+        normalizedOrigin.includes('127.0.0.1')
+      ) {
         return callback(null, true);
       }
 

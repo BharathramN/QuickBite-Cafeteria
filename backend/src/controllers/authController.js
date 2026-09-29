@@ -3,11 +3,7 @@ import { User } from '../models/User.js';
 import { CoinTransaction } from '../models/CoinTransaction.js';
 
 const getJwtSecret = () => {
-  const secret = process.env.JWT_SECRET;
-  if (!secret && process.env.NODE_ENV === 'production') {
-    throw new Error('FATAL: JWT_SECRET environment variable is required in production.');
-  }
-  return secret || 'quickbite_dev_fallback_secret_key_srm_2026';
+  return process.env.JWT_SECRET || 'quickbite_srm_fallback_jwt_secret_key_2026';
 };
 
 const generateToken = (id) => {

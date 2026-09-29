@@ -10,7 +10,7 @@ export const protect = async (req, res, next) => {
   ) {
     try {
       token = req.headers.authorization.split(' ')[1];
-      const secret = process.env.JWT_SECRET || 'quickbite_dev_fallback_secret_key_srm_2026';
+      const secret = process.env.JWT_SECRET || 'quickbite_srm_fallback_jwt_secret_key_2026';
       const decoded = jwt.verify(token, secret);
       
       const user = await User.findById(decoded.id).select('-password');
