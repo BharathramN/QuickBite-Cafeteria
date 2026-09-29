@@ -1,0 +1,21 @@
+# Environment files
+.env
+.env.*
+!.env.example
+.env.local
+.env.production
+
+# Dependencies
+node_modules/
+
+# Production build output
+dist/
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+
+# OS files
+.DS_Store
+Thumbs.db
