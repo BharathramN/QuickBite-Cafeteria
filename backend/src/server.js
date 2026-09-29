@@ -18,10 +18,13 @@ const HOST = process.env.HOST || '0.0.0.0';
 const isProduction = process.env.NODE_ENV === 'production';
 
 // Dynamic CORS configuration supporting deployed frontend URL(s)
-const allowedOrigins = process.env.CLIENT_URL
-  ? process.env.CLIENT_URL.split(',').map((u) => u.trim().replace(/\/$/, ''))
-  : ['http://localhost:3000', 'http://127.0.0.1:3000'];
-
+const allowedOrigins = [
+  'http://localhost:5173',
+  'http://localhost:3000',
+  'http://127.0.0.1:5173',
+  'http://127.0.0.1:3000',
+  'https://quickbite-frontend-nk9v.onrender.com'
+];
 app.use(
   cors({
     origin: (origin, callback) => {
